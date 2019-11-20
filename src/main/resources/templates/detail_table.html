@@ -1,0 +1,18 @@
+<table class="table table-striped" xmlns:th="http://www.w3.org/1999/xhtml">
+    <thead>
+    <tr>
+        <th>姓名</th>
+        <th>身份证号</th>
+        <th>电话号码</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="buyer:${buyers}">
+        <td th:text="${buyer.getName()}"></td>
+        <td th:text="${buyer.getIdNumber()}"></td>
+        <td th:text="${buyer.getPhone()}"></td>
+        <td><button class="btn btn-primary sold-button">成交</button></td>
+        <td><button class="btn btn-danger ignore-button">忽略</button></td>
+    </tr>
+    </tbody>
+</table>

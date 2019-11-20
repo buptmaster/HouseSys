@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <link href="@" th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
+</head>
+<body>
+<div th:fragment="header">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">二手房交易网站</a>
+            <div>
+                <ul class="nav nav-pills">
+                    <li ><a href="#" th:href="@{/house}">房源</a></li>
+                    <li ><a href="#" th:href="@{/house/my}">管理我的房产</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</body>
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+</html>

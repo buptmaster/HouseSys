@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>管理我的房产</title>
+    <link href="@" th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
+</head>
+<body>
+<div th:replace="header :: header"></div>
+<input id="userId" type="hidden" th:value="${user.getId()}"/>
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th class="text-center">ID</th>
+        <th class="text-center">位置</th>
+        <th class="text-center">建造时间</th>
+        <th class="text-center">售卖时间</th>
+        <th class="text-center">价格</th>
+        <th class="text-center">状态</th>
+        <th class="text-center">联系电话</th>
+        <th class="text-center">图片</th>
+        <th></th>
+        <th>
+            <button class="btn btn-primary" data-toggle="modal" data-target="#myModal">添加</button>
+        </th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="house:${houses}">
+        <td class="text-center" th:text="${house.getId()}"></td>
+        <td class="text-center" th:text="${house.getLocation()}"></td>
+        <td class="text-center" th:text="${house.getBuiltTime()}"></td>
+        <td class="text-center" th:text="${house.getSaleTime()}"></td>
+        <td class="text-center" th:text="${house.getPrice()}+'元'"></td>
+        <td class="text-center" th:text="${house.getStatus()}"></td>
+        <td class="text-center" th:text="${house.getUser().getPhone()}"></td>
+        <td>
+            <img src="https://www.baidu.com/img/bd_logo1.png" class="img-thumbnail center-block" height="150"
+                 width="75"/>
+        </td>
+        <td>
+            <button class="btn btn-danger delete-btn">删除</button>
+        </td>
+        <td>
+            <button th:if="${!house.getStatus().equals('已成交')}" class="btn btn-primary detail-btn">详情</button>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    添加房产
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div style="padding: 10px 100px 10px;">
+                    <form class="bs-example bs-example-form" role="form">
+                        <div class="input-group">
+                            <span class="input-group-addon">位置</span>
+                            <input id="location" type="text" class="form-control" placeholder="输入位置"/>
+                        </div>
+                        <br/>
+                        <div class="input-group">
+                            <span class="input-group-addon">建造时间</span>
+                            <input id="builtTime" type="text" class="form-control" placeholder="输入时间"/>
+                        </div>
+                        <br/>
+                        <div class="input-group">
+                            <span class="input-group-addon">价格￥</span>
+                            <input id="price" type="text" class="form-control" placeholder="输入价格"/>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                </button>
+                <button id="addHouse" type="button" class="btn btn-primary" data-dismiss="modal">
+                    提交更改
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+<div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="detailLabel">
+                    有意愿的买家
+                </h4>
+            </div>
+            <div id="detail-div" class="modal-body">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script>
+    var currentHouseId = -1;
+    $(".delete-btn").click(function () {
+        var id = $(this).parent().parent().find("td").html();
+        $(this).parent().parent().remove();
+        deleteHouse(id);
+    });
+
+    $("#addHouse").click(function () {
+        addHouse($("#location").val(), $("#price").val(), $("#builtTime").val(), $("#userId").val());
+    });
+
+    $(".detail-btn").click(function () {
+        $("#detailModal").modal("show");
+        currentHouseId = $(this).parent().parent().find("td").html();
+        $("#detail-div").load("/buyer/house?houseId=" + currentHouseId,function () {
+            $(".sold-button").click(function () {
+                $.ajax({
+                    url:"/house/houseSold?houseId=" + currentHouseId,
+                    type:"post"
+                });
+                $("#detailModal").modal("hide");
+                window.location.reload()
+            });
+
+            $(".ignore-button").click(function () {
+                $.ajax({
+                    url:"/buyer/ignore?idNumber=" + $(this).parent().parent().find("td").eq(1).html(),
+                    type:"post"
+                });
+                $(this).parent().parent().remove();
+            });
+        });
+    });
+
+    function addHouse(location, price, builtTime, userId) {
+        $.ajax({
+            url: "/house/addHouse",
+            type: "post",
+            data:{
+                "location" : location,
+                "price" : price,
+                "builtTime" : builtTime,
+                "userId": userId
+            },
+            success:function () {
+                window.location.reload();
+            }
+        })
+    }
+
+    function deleteHouse(id) {
+        console.log(id);
+        $.ajax({
+            url: "/house/deleteHouse?id=" + id,
+            type: "post"
+        })
+    }
+</script>
+</body>
+
+</html>

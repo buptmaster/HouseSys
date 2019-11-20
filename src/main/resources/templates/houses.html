@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>二手房源</title>
+    <link href="@" th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
+</head>
+<body>
+    <div th:replace="header :: header"></div>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th class="text-center" >ID</th>
+                <th class="text-center" >位置</th>
+                <th class="text-center" >建造时间</th>
+                <th class="text-center" >售卖时间</th>
+                <th class="text-center" >价格</th>
+                <th class="text-center">状态</th>
+                <th class="text-center">联系电话</th>
+                <th class="text-center" >图片</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="house:${houses}">
+                <td class="text-center" th:text="${house.getId()}"></td>
+                <td class="text-center" th:text="${house.getLocation()}"></td>
+                <td class="text-center" th:text="${house.getBuiltTime()}"></td>
+                <td class="text-center" th:text="${house.getSaleTime()}"></td>
+                <td class="text-center" th:text="${house.getPrice()}+'元'"></td>
+                <td class="text-center" th:text="${house.getStatus()}"></td>
+                <td class="text-center" th:text="${house.getUser().getPhone()}"></td>
+                <td>
+                    <img  src="https://www.baidu.com/img/bd_logo1.png" class="img-thumbnail center-block" height="150" width="75"/>
+                </td>
+                <td><button th:if="${!house.getStatus().equals('已成交')}" class="btn btn-primary buyer">购买</button></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">
+                        提交意愿
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div style="padding: 10px 100px 10px;">
+                        <form class="bs-example bs-example-form" role="form">
+                            <div class="input-group">
+                                <span class="input-group-addon">身份证号</span>
+                                <input id="idNumber" type="text" class="form-control" placeholder="输入身份证号"/>
+                            </div>
+                            <br/>
+                            <div class="input-group">
+                                <span class="input-group-addon">姓名</span>
+                                <input id="name" type="text" class="form-control" placeholder="输入姓名"/>
+                            </div>
+                            <br/>
+                            <div class="input-group">
+                                <span class="input-group-addon">联系电话</span>
+                                <input id="phone" type="text" class="form-control" placeholder="输入电话号码"/>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                    </button>
+                    <button id="addBuyer" type="button" class="btn btn-primary">
+                        提交信息
+                    </button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+
+    <script src="/js/jquery-3.4.1.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script>
+        var houseId = -1;
+
+        $(".buyer").click(function () {
+            $("#myModal").modal("show");
+            houseId = $(this).parent().parent().find("td").html();
+            console.log(houseId);
+        });
+
+        $("#addBuyer").click(function () {
+           addBuyer($("#idNumber").val(), $("#phone").val(), $("#name").val(), houseId)
+        });
+
+        function addBuyer(idNumber, phone, name, houseId){
+            $.ajax({
+                url: "/buyer/add",
+                type: "post",
+                data:{
+                    "idNumber": idNumber,
+                    "phone": phone,
+                    "name": name,
+                    "houseId": houseId
+                },
+                success:function () {
+                    $("#myModal").modal("hide");
+                }
+            })
+        }
+
+
+    </script>
+</body>
+</html>
